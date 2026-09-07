@@ -13,43 +13,15 @@ load_dotenv()
 
 groq_api_key=os.getenv("GROQ_API_KEY")
 
-#file loading
-uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
+#title
+st.title("StudyBuddy")
 
-if uploaded_file:
-    with open("uploaded.pdf", "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    loader = PyPDFLoader("uploaded.pdf")
-    texts = loader.load()
-
-
-
-#text splitting
-
-splitter=RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
-
-chunks=splitter.split_documents(texts)
-
-
-
-#embeddings model
-embedding=OllamaEmbeddings(model="nomic-embed-text")
-
-
-
-#vectorstore db
-db=Chroma.from_documents(chunks,embedding)
-
+st.markdown("I'm Ur AI study Assistant")
 
 
 #user query
 query=st.text_input(label="enter text")
 
-
-#similarity search
-context_text=db.similarity_search(query)
-context="\n".join(page.page_content for page in context_text)
 
 #prompt template
 prompt=ChatPromptTemplate(
@@ -66,6 +38,7 @@ llm=ChatGroq(
     groq_api_key=groq_api_key
 )
 
+
 #output parser
 output_parser=StrOutputParser()
 
@@ -74,7 +47,43 @@ output_parser=StrOutputParser()
 chain=prompt|llm|output_parser
 
 
-#final resul invoking llm
-res=chain.invoke({"context":context,"query":query})
+#file loading
+uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
-st.success(res)
+
+
+if uploaded_file:
+    with open("uploaded.pdf", "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    loader = PyPDFLoader("uploaded.pdf")
+    texts = loader.load()
+
+
+    #text splitting
+    splitter=RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=50)
+    chunks=splitter.split_documents(texts)
+
+
+    #embeddings model
+    embedding=OllamaEmbeddings(model="nomic-embed-text")
+
+
+    #vectorstore db
+    db=Chroma.from_documents(chunks,embedding)
+
+
+    #similarity search
+    context_text=db.similarity_search(query)
+    context="\n".join(page.page_content for page in context_text)
+
+    
+    #final resul invoking llm
+    res=chain.invoke({"context":context,"query":query})
+
+    #final output
+    st.success(res)
+else:
+    #handling for normal llm without context,normally gives answers based on query
+    res=chain.invoke({"context":"","query":query})
+    st.success(res)
