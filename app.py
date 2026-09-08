@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 import os
+import tempfile
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -53,10 +54,10 @@ uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
 
 if uploaded_file:
-    with open("uploaded.pdf", "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    loader = PyPDFLoader("uploaded.pdf")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        tmp.write(uploaded_file.getbuffer())
+        tmp_path = tmp.name
+    loader = PyPDFLoader(tmp_path)
     texts = loader.load()
 
 
