@@ -1,7 +1,10 @@
-langchain
-langchain_groq
-langchain_ollama
-langchain-chroma
 streamlit
-pymupdf
+langchain
+langchain-community
+langchain-groq
+langchain-chroma
 langchain-google-genai
+langchain-text-splitters
+pymupdf
+chromadb
+python-dotenv
