@@ -1,5 +1,5 @@
 from langchain_groq import ChatGroq
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader,TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -37,21 +37,38 @@ st.title("📚 StudyBuddy")
 st.markdown("I'm Ur AI study Assistant")
 
 
+#handling functions for diiferent files
+def load_pdf(file_name):
+    loader=PyMuPDFLoader(file_name)
+    return loader.load()
+
+def load_text(file_name):
+    loader=TextLoader(file_name)
+    return loader.load()
+
+
 # ---- sidebar: file upload, separate from the chat flow ----
 with st.sidebar:
     st.header("Upload material")
-    uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
+    uploaded_file = st.file_uploader("Upload file", type=["pdf","txt"])
 
     if uploaded_file:
         if "db" not in st.session_state or st.session_state.get("file_name") != uploaded_file.name:
             with st.spinner("Reading and indexing PDF..."):
                 try:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                    suffix=os.path.splitext(uploaded_file.name)[1]
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
                         tmp.write(uploaded_file.getbuffer())
                         tmp_path = tmp.name
 
-                    loader = PyMuPDFLoader(tmp_path)
-                    texts = loader.load()
+                    def load_file(file):
+                        ext=os.path.splitext(file)[1].lower()
+                        if ext==".pdf":
+                            return load_pdf(file)
+                        if ext==".txt":
+                            return load_text(file)
+                        raise ValueError(f"Unsupported file:{ext}")    
+                    texts = load_file(tmp_path)
 
                     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
                     chunks = splitter.split_documents(texts)
