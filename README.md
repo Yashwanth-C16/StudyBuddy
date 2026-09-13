@@ -85,3 +85,10 @@ streamlit run app.py
 - Hybrid (keyword + vector) retrieval
 - OCR support for scanned PDFs
 - Retrieval accuracy evaluation on a test question set
+
+
+## Evaluation
+
+Built a small retrieval evaluation script (`eval.py`) that tests whether the vector search 
+retrieves the correct source page for a set of known questions. On a 5-question test set 
+covering each section of a sample document, retrieval achieved 5/5 (100%) accuracy at k=3.
