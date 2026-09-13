@@ -1,0 +1,7 @@
+[
+  {"question": "What is the difference between linear and non-linear data structures?", "expected_page": 1},
+  {"question": "What is the base case in recursion?", "expected_page": 2},
+  {"question": "What does LIFO mean and which data structure uses it?", "expected_page": 3},
+  {"question": "What is the time complexity of binary search?", "expected_page": 4},
+  {"question": "What is a binary search tree?", "expected_page": 5}
+]
